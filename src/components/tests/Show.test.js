@@ -1,26 +1,64 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { queryByTestId, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import Show from './../Show';
 
+// A show should contain a name, a summary and an array of seasons, each with a id, name and (empty) list of episodes within them
+
 const testShow = {
     //add in approprate test data structure here.
+    name: 'The Test',
+    summary: 'kid takes a test',
+    seasons: [
+        {
+            id: 1,
+            name: 'season1',
+            episodes:[]
+        },
+        {
+            id: 2,
+            name: 'season2',
+            episodes: []
+        }
+    ]
 }
 
+
 test('renders testShow and no selected Season without errors', ()=>{
+    render(<Show show={testShow} selectedSeason={'none'}/>);
 });
 
 test('renders Loading component when prop show is null', () => {
+    render(<Show show={null}/>)
+
+    const loading = screen.queryByText(/Fetching data.../i)
+
+    expect(loading).toBeInTheDocument();
 });
 
 test('renders same number of options seasons are passed in', ()=>{
+    render(<Show show={testShow} selectedSeason={'none'}/>)
+
+    const dropDown = screen.queryAllByTestId('season-option');
+
+    expect(dropDown).toHaveLength(2);
+    expect(dropDown).not.toHaveLength(5);
 });
 
 test('handleSelect is called when an season is selected', () => {
+    const mockOnChange = jest.fn()
+    render(<Show show={testShow} selectedSeason={'none'} handleSelect={mockOnChange}/>)
+
+    const dropDown = screen.queryByLabelText(/Select A Season/i)
+
+    userEvent.selectOptions(dropDown, ['1'])
+    expect(mockOnChange).toBeCalled();
 });
 
 test('component renders when no seasons are selected and when rerenders with a season passed in', () => {
+    render(<Show show={testShow} selectedSeason={'none'}/>)
+
 });
 
 //Tasks:
